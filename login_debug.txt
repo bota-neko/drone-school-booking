@@ -1,0 +1,23 @@
+Login attempt: complete_user@example.com, Found: true, Hash: $2b$12$xNuAnck.zalaeRH5.NCbL.7dHkCcInWHi.D8GFoB/bhqzRuCn2a3C
+Password match: true
+Login attempt: admin_verification@example.com, Found: true, Hash: $2b$12$FDQTAIfwLvWJzlmd62.SC.Ui88igSUP1UygILRHfIma/ZMv1g2yda
+Password match: true
+Login attempt: test3@test.com, Found: false, Hash: undefined
+Login attempt: botaneko.adachi@gmail.com, Found: true, Hash: $2b$10$xbtrdbVX4VrmL8puHpAPD.e8HlknFcVFSTTJhXR2iuFwyd9nRiZmS
+Password match: false
+Login attempt: botaneko.adachi@gmail.com, Found: true, Hash: $2b$10$xbtrdbVX4VrmL8puHpAPD.e8HlknFcVFSTTJhXR2iuFwyd9nRiZmS
+Password match: false
+Login attempt: admin_verification@example.com, Found: true, Hash: $2b$12$FDQTAIfwLvWJzlmd62.SC.Ui88igSUP1UygILRHfIma/ZMv1g2yda
+Password match: true
+Login attempt: test1@example.com, Found: true, Hash: $2b$10$SYA1XWlnLUkvkcQC2DFYVeHXljxyKarodalhM/B9fHnX3lgdmgbvO
+Password match: true
+Login attempt: port_check@example.com, Found: true, Hash: $2b$10$7aaj2q5G.jEtF.wqVFPUKuNXyd2rLG2TnKcJsgHZ4idDe/1QMqQcq
+Password match: true
+Login attempt: botaneko.adachi@gmail.com, Found: true, Hash: $2b$10$xbtrdbVX4VrmL8puHpAPD.e8HlknFcVFSTTJhXR2iuFwyd9nRiZmS
+Password match: false
+Login attempt: admin_verification@example.com, Found: true, Hash: $2b$12$FDQTAIfwLvWJzlmd62.SC.Ui88igSUP1UygILRHfIma/ZMv1g2yda
+Password match: true
+Login attempt: botaneko.adachi@gmail.com, Found: true, Hash: $2b$10$xbtrdbVX4VrmL8puHpAPD.e8HlknFcVFSTTJhXR2iuFwyd9nRiZmS
+Password match: false
+Login attempt: botaneko.adachi@gmail.com, Found: true, Hash: $2b$12$3nrMQ9DSQ62PATSrk5cWf.E/uTltkJ36bzCyurNGKlQltHWPJv1i6
+Password match: true

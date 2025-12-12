@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL") // Uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // Uses direct connection
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          String    @default("USER") // "ADMIN" or "USER"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  profile       Profile?
+  bookings      Booking[]
+}
+
+model Profile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fullName        String
+  phone           String?
+  age             Int?
+  address         String?
+  droneHistory    String?
+  emergencyContact String?
+  
+  // Agreements
+  termsAccepted   Boolean @default(false)
+  privacyAccepted Boolean @default(false)
+  riskAccepted    Boolean @default(false)
+  
+  // Legacy / Unused for now but kept for safety if previously planned
+  ownedDrones     String?
+  flightLocations String?
+  licenses        String?
+  purpose         String? 
+}
+
+model Event {
+  id            String    @id @default(cuid())
+  type          String    // "SEMINAR" or "FREE_PRACTICE"
+  title         String
+  description   String?
+  location      String?
+  
+  startTime     DateTime
+  endTime       DateTime
+  
+  maxAttendees  Int       @default(1)
+  price         Int       @default(0)
+  
+  // For recurring logic (handled in app, stored here for reference if it's the parent)
+  recurrenceRule String? 
+  
+  bookings      Booking[]
+
+  // Helper fields for Free Practice slot generation tracking if needed
+  isSlot        Boolean   @default(false) 
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  status    String   @default("CONFIRMED") // CONFIRMED, CANCELLED, WAITING
+  attended  Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId]) // Prevent double booking
+}
+
+model SystemConfig {
+  id        String   @id @default("default") // Only one config usage
+  siteTitle String   @default("SORA-MUSUBI")
+  logoUrl   String?
+  updatedAt DateTime @updatedAt
+}

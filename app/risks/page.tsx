@@ -1,4 +1,8 @@
-export default function RisksPage() {
+'use client';
+
+'use client';
+
+export default function TermsPage() {
     return (
         <div className="container" style={{ padding: '2rem 1rem', maxWidth: '800px' }}>
             <h1 style={{ marginBottom: '2rem', fontFamily: 'var(--font-outfit)', fontWeight: 700 }}>リスク説明・同意事項</h1>

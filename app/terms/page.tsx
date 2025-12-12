@@ -1,3 +1,5 @@
+'use client';
+
 export default function TermsPage() {
     return (
         <div className="container" style={{ padding: '2rem 1rem', maxWidth: '800px' }}>

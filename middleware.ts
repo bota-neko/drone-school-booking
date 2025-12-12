@@ -16,8 +16,7 @@ export async function middleware(request: NextRequest) {
     const isLoginPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register');
 
     // Protect dashboard routes
-    // Allow /admin-setup to be accessed even if not admin yet (it has its own secret protection)
-    if ((request.nextUrl.pathname.startsWith('/my-page') || request.nextUrl.pathname.startsWith('/admin')) && !request.nextUrl.pathname.startsWith('/admin-setup')) {
+    if (request.nextUrl.pathname.startsWith('/my-page') || request.nextUrl.pathname.startsWith('/admin')) {
         if (!isAuth) {
             return NextResponse.redirect(new URL('/login', request.url));
         }

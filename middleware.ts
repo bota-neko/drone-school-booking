@@ -12,9 +12,6 @@ export async function middleware(request: NextRequest) {
     const cookie = cookieStore.get('session')?.value;
     const session = await decrypt(cookie);
 
-    console.log(`Middleware: ${request.nextUrl.pathname} | Auth: ${!!session?.userId} | Role: ${session?.role}`);
-
-
     const isAuth = !!session?.userId;
     const isLoginPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register');
 

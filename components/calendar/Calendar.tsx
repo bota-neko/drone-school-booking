@@ -58,6 +58,11 @@ export function Calendar() {
                     <strong>自由練習:</strong>
                     <span style={{ color: 'var(--text-secondary)' }}>シミュレータや実機を使って自由に練習できる時間枠。（1500円/１時間）</span>
                 </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
+                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#f97316', borderRadius: '2px' }}></span>
+                    <strong>予約済み:</strong>
+                    <span style={{ color: 'var(--text-secondary)' }}>自分が予約している枠</span>
+                </div>
             </div>
 
             {/* Header: Month & Nav */}
@@ -131,7 +136,7 @@ export function Calendar() {
                                         fontSize: '0.75rem',
                                         padding: '2px 4px',
                                         borderRadius: '2px',
-                                        background: event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'var(--status-success)',
+                                        background: event.isBooked ? '#f97316' : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'var(--status-success)'),
                                         color: 'white',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',

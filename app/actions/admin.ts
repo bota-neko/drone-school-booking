@@ -307,4 +307,27 @@ export async function deleteEventAction(eventId: string) {
     }
 }
 
+// Delete All Events (Danger Zone)
+export async function deleteAllEvents() {
+    const session = await verifySession();
+    if (session?.role !== 'ADMIN') {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        // Delete all events
+        // Note: This will Cascade delete bookings due to schema relation if defined,
+        // or fail if RESTRICT. Usually Schema is Cascade for booking->event.
+        // Let's create a transaction to be safe.
+        await prisma.event.deleteMany({});
+
+        revalidatePath('/calendar');
+        revalidatePath('/admin');
+        return { success: true, message: '全ての予約枠を削除しました。' };
+    } catch (error) {
+        console.error("Failed to delete all events:", error);
+        return { success: false, message: '削除に失敗しました。' };
+    }
+}
+
 

@@ -1,5 +1,4 @@
-import { getSystemConfig } from '@/app/actions/settings';
-import { SettingsForm } from '@/components/admin/settings-form';
+import { DeleteScheduleButton } from '@/components/admin/delete-schedule-button';
 
 export default async function AdminSettingsPage() {
     const config = await getSystemConfig();
@@ -11,6 +10,8 @@ export default async function AdminSettingsPage() {
             <div className="card">
                 <SettingsForm initialConfig={config} />
             </div>
+
+            <DeleteScheduleButton />
         </div>
     );
 }

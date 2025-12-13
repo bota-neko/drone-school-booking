@@ -2,6 +2,7 @@ import { getSystemConfig } from '@/app/actions/settings';
 import { SettingsForm } from '@/components/admin/settings-form';
 import { DeleteScheduleButton } from '@/components/admin/delete-schedule-button';
 import { UserSeederButton } from '@/components/admin/user-seeder-button';
+import { ChangeEmailForm } from '@/components/admin/change-email-form';
 
 export default async function AdminSettingsPage() {
     const config = await getSystemConfig();
@@ -14,8 +15,12 @@ export default async function AdminSettingsPage() {
                 <SettingsForm initialConfig={config} />
             </div>
 
-            <DeleteScheduleButton />
-            <UserSeederButton />
+            <ChangeEmailForm />
+
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <DeleteScheduleButton />
+                <UserSeederButton />
+            </div>
         </div>
     );
 }

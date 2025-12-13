@@ -131,6 +131,153 @@ export async function sendAdminBookingNotification(event: EventDetails, userEmai
                         <p><strong>日時:</strong> ${dateStr} ${timeStr}</p>
                         <p><strong>場所:</strong> ${event.location || '現地'}</p>
                     </div>
+                    <p style="font-size: 0.8rem; color: #666;">管理画面から詳細を確認してください。</p>
+                </div>
+            `
+        });
+        console.log(`[Email] Admin notification sent to ${ADMIN_EMAIL}`);
+    } catch (error) {
+        console.error('[Email] Failed to send admin notification:', error);
+    }
+}
+
+export async function sendAdminNewUserNotification(userEmail: string, userName: string) {
+    // Development Fallback
+    if (!process.env.RESEND_API_KEY) {
+        console.log('--- [DEV] EMAIL SIMULATION: NEW USER NOTIFICATION ---');
+        console.log(`To: ${ADMIN_EMAIL}`);
+        console.log(`New User: ${userName} (${userEmail})`);
+        console.log('-----------------------------------------------------');
+        return;
+    }
+
+    try {
+        await resend.emails.send({
+            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            to: ADMIN_EMAIL,
+            subject: '【ユーザー登録通知】新規ユーザーが登録されました',
+            html: `
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #333;">新規ユーザー登録のお知らせ</h2>
+                    <p>新しいユーザーがアカウントを作成しました。</p>
+                    
+                    <div style="background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <h3 style="margin-top: 0; color: #444;">ユーザー情報</h3>
+                        <p><strong>名前:</strong> ${userName}</p>
+                        <p><strong>メール:</strong> ${userEmail}</p>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: #666;">管理画面のユーザー一覧で詳細を確認できます。</p>
+                </div>
+            `
+        });
+        console.log(`[Email] Admin new user notification sent to ${ADMIN_EMAIL}`);
+    } catch (error) {
+        console.error('[Email] Failed to send admin new user notification:', error);
+    }
+}
+
+// Verification Email
+export async function sendVerificationEmail(email: string, token: string) {
+    const confirmLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+
+    if (!process.env.RESEND_API_KEY) {
+        console.log('--- [DEV] EMAIL SIMULATION: VERIFICATION ---');
+        console.log(`To: ${email}`);
+        console.log(`Link: ${confirmLink}`);
+        console.log('--------------------------------------------');
+        return;
+    }
+
+    try {
+        await resend.emails.send({
+            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            to: email,
+            subject: '【重要】メールアドレスの確認をお願いします',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1>メールアドレスの確認</h1>
+                    <p>ドローンスクール予約サイトへのご登録ありがとうございます。</p>
+                    <p>以下のリンクをクリックして、メールアドレスの確認を完了してください。</p>
+                    <p>
+                        <a href="${confirmLink}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 5px;">
+                            メールアドレスを確認する
+                        </a>
+                    </p>
+                    <p style="font-size: 0.9rem; color: #666;">
+                        リンクの有効期限は24時間です。<br>
+                        もしこのメールに心当たりがない場合は、無視してください。
+                    </p>
+                </div>
+            `
+        });
+        console.log(`[Email] Verification sent to ${email}`);
+    } catch (error) {
+        console.error('[Email] Failed to send verification email:', error);
+    }
+}
+
+// Admin Cancellation Notification
+export async function sendAdminCancellationNotification(event: any, user: any) {
+    if (!process.env.RESEND_API_KEY) {
+        console.log('--- [DEV] EMAIL SIMULATION: ADMIN CANCELLATION ---');
+        console.log(`To: ${ADMIN_EMAIL}`);
+        console.log(`Canceled By: ${user.email}`);
+        console.log(`Event: ${event.title}`);
+        console.log('--------------------------------------------------');
+        return;
+    }
+
+    try {
+        const dateStr = format(event.startTime, 'yyyy年MM月dd日 (EEE) HH:mm', { locale: ja });
+
+        await resend.emails.send({
+            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            to: ADMIN_EMAIL,
+            subject: '【キャンセル発生】予約がキャンセルされました',
+            html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #d32f2f;">予約キャンセルのお知らせ</h2>
+                    <p>以下の予約がキャンセルされました。</p>
+                    
+                    <div style="background: #fff5f5; padding: 15px; border-radius: 5px; border: 1px solid #ffcdd2;">
+                        <p><strong>ユーザー:</strong> ${user.profile?.fullName || 'No Name'} (${user.email})</p>
+                        <p><strong>イベント:</strong> ${event.title}</p>
+                        <p><strong>日時:</strong> ${dateStr}</p>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: #666;">管理画面で最新の予約状況を確認してください。</p>
+                </div>
+            `
+        });
+        console.log(`[Email] Admin cancellation notice sent to ${ADMIN_EMAIL}`);
+    } catch (error) {
+        console.error('[Email] Failed to send admin cancellation notice:', error);
+    }
+}
+const timeStr = `${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`;
+
+await resend.emails.send({
+    from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+    to: ADMIN_EMAIL,
+    subject: `【予約通知】新規予約が入りました (${event.title})`,
+    html: `
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #333;">新規予約のお知らせ</h2>
+                    <p>ユーザーから新しい予約が入りました。</p>
+                    
+                    <div style="background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <h3 style="margin-top: 0; color: #444;">予約者情報</h3>
+                        <p><strong>名前:</strong> ${userName}</p>
+                        <p><strong>メール:</strong> ${userEmail}</p>
+                    </div>
+
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <h3 style="margin-top: 0; color: #444;">予約内容</h3>
+                        <p><strong>イベント:</strong> ${event.title}</p>
+                        <p><strong>日時:</strong> ${dateStr} ${timeStr}</p>
+                        <p><strong>場所:</strong> ${event.location || '現地'}</p>
+                    </div>
 
         return;
     }
@@ -141,19 +288,19 @@ export async function sendAdminBookingNotification(event: EventDetails, userEmai
             to: ADMIN_EMAIL,
             subject: `【ユーザー登録通知】新規ユーザーが登録されました`,
             html: `
-        < div style = "font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;" >
-        <h2 style="color: #333;" > 新規ユーザー登録のお知らせ </h2>
-        < p > 新しいユーザーがアカウントを作成しました。</p>
+< div style = "font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;" >
+<h2 style="color: #333;" > 新規ユーザー登録のお知らせ </h2>
+< p > 新しいユーザーがアカウントを作成しました。</p>
 
-        < div style = "background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;" >
-        <h3 style="margin-top: 0; color: #444;" > ユーザー情報 </h3>
-        < p > <strong>名前: </strong> ${userName}</p >
-        <p><strong>メール: </strong> ${userEmail}</p >
-        </div>
+< div style = "background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;" >
+<h3 style="margin-top: 0; color: #444;" > ユーザー情報 </h3>
+< p > <strong>名前: </strong> ${userName}</p >
+<p><strong>メール: </strong> ${userEmail}</p >
+</div>
 
-        < p style = "font-size: 0.8rem; color: #666;" > 管理画面のユーザー一覧で詳細を確認できます。</p>
-        </div>
-            `
+< p style = "font-size: 0.8rem; color: #666;" > 管理画面のユーザー一覧で詳細を確認できます。</p>
+</div>
+    `
         });
         console.log(`[Email] Admin new user notification sent to ${ ADMIN_EMAIL }`);
     } catch (error) {

@@ -21,13 +21,12 @@ export async function createEvent(formData: FormData) {
     const price = parseInt(formData.get('price') as string || '0');
     const recurrence = formData.get('recurrence') as string; // 'NONE', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'
 
-    // Basic date construction
-    const baseDate = new Date(dateStr);
-    const [startH, startM] = startTimeStr.split(':').map(Number);
-    const [endH, endM] = endTimeStr.split(':').map(Number);
-
-    const startDateTime = setMinutes(setHours(baseDate, startH), startM);
-    const endDateTime = setMinutes(setHours(baseDate, endH), endM);
+    // Basic date construction with JST forced (+09:00)
+    // Input dateStr: YYYY-MM-DD
+    // Input startTimeStr: HH:mm
+    // Result: UTC Timestamp that represents the input time in JST.
+    const startDateTime = new Date(`${dateStr}T${startTimeStr}:00+09:00`);
+    const endDateTime = new Date(`${dateStr}T${endTimeStr}:00+09:00`);
 
     try {
         if (type === 'FREE_PRACTICE') {

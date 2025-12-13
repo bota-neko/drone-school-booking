@@ -5,7 +5,7 @@ import { ja } from 'date-fns/locale';
 // Initialize Resend with API Key from environment
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const SENDER_EMAIL = 'onboarding@resend.dev'; // Default Resend Testing Domain
+const SENDER_EMAIL = process.env.SENDER_EMAIL_ADDRESS || 'onboarding@resend.dev'; // Must be verified domain in Production
 const SENDER_NAME = 'Drone School';
 const ADMIN_EMAIL = 'botaneko.adachi@gmail.com';
 
@@ -189,12 +189,12 @@ export async function sendVerificationEmail(email: string, token: string) {
         return;
     }
 
-    try {
-        await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
-            to: email,
-            subject: '【重要】メールアドレスの確認をお願いします',
-            html: `
+    // Send (let errors throw to caller)
+    await resend.emails.send({
+        from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+        to: email,
+        subject: '【重要】メールアドレスの確認をお願いします',
+        html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
                     <h1>メールアドレスの確認</h1>
                     <p>ドローンスクール予約サイトへのご登録ありがとうございます。</p>
@@ -210,11 +210,8 @@ export async function sendVerificationEmail(email: string, token: string) {
                     </p>
                 </div>
             `
-        });
-        console.log(`[Email] Verification sent to ${email}`);
-    } catch (error) {
-        console.error('[Email] Failed to send verification email:', error);
-    }
+    });
+    console.log(`[Email] Verification sent to ${email}`);
 }
 
 // Admin Cancellation Notification

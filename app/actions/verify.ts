@@ -84,8 +84,9 @@ export async function resendVerificationEmail() {
         }
 
         return { success: true, message: '認証メールを再送しました。' };
-    } catch (error) {
+    } catch (error: any) {
         console.error('Resend Error:', error);
-        return { success: false, message: 'メール送信に失敗しました。' };
+        // Expose the specific error message for debugging
+        return { success: false, message: `送信失敗: ${error.message || '不明なエラー'}` };
     }
 }

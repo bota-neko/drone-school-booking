@@ -100,7 +100,7 @@ export function RegisterForm() {
 
             {state?.message && <p className="error-message" style={{ marginBottom: '1rem' }}>{state.message}</p>}
 
-            <button type="submit" className="btn btn-primary" disabled={pending}>
+            <button type="submit" className="btn btn-primary" disabled={pending} style={{ marginTop: '2rem' }}>
                 {pending ? '登録中...' : '登録する'}
             </button>
 

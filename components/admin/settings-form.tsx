@@ -5,6 +5,7 @@ import { updateSystemConfig } from '@/app/actions/settings';
 
 type Config = {
     siteTitle: string;
+    siteDescription?: string;
     logoUrl: string | null;
 };
 
@@ -25,6 +26,21 @@ export function SettingsForm({ initialConfig }: { initialConfig: Config }) {
                 {state?.errors?.siteTitle && <p className="error-message">{state.errors.siteTitle}</p>}
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
                     ブラウザのタブやヘッダーに表示されるタイトルです。
+                </p>
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="siteDescription" className="label">サイト説明文</label>
+                <textarea
+                    name="siteDescription"
+                    id="siteDescription"
+                    className="input"
+                    defaultValue={initialConfig.siteDescription || ''}
+                    rows={3}
+                    style={{ resize: 'vertical' }}
+                />
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                    検索結果などに表示されるサイトの説明文です。
                 </p>
             </div>
 

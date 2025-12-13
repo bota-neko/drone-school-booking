@@ -93,6 +93,7 @@ model Booking {
 model SystemConfig {
   id        String   @id @default("default") // Only one config usage
   siteTitle String   @default("SORA-MUSUBI")
+  siteDescription String @default("Drone School Reservation System")
   logoUrl   String?
   updatedAt DateTime @updatedAt
 }

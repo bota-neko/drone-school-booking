@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getSystemConfig } from "@/app/actions/settings";
 import { Outfit } from "next/font/google"; // Removed Noto Sans JP
 import "../styles/globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -8,10 +9,14 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Drone School Booking",
-  description: "Drone School Reservation System",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSystemConfig();
+
+  return {
+    title: config.siteTitle,
+    description: config.siteDescription || "Drone School Reservation System",
+  };
+}
 
 export default function RootLayout({
   children,

@@ -79,6 +79,10 @@ export async function resendVerificationEmail() {
         // Send email
         await sendVerificationEmail(user.email, verificationToken);
 
+        if (!process.env.RESEND_API_KEY) {
+            return { success: true, message: '【テストモード】認証メール送信をシミュレートしました。（実際には送信されていません）' };
+        }
+
         return { success: true, message: '認証メールを再送しました。' };
     } catch (error) {
         console.error('Resend Error:', error);

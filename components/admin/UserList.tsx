@@ -88,12 +88,13 @@ export function UserList({ initialUsers }: { initialUsers: User[] }) {
                                         className="btn"
                                         onClick={() => handleDelete(user.id)}
                                         style={{
-                                            background: 'var(--status-error)',
+                                            background: '#ef4444',
                                             color: 'white',
                                             padding: '0.25rem 0.5rem',
                                             fontSize: '0.8rem',
                                             border: 'none',
-                                            cursor: 'pointer'
+                                            cursor: 'pointer',
+                                            borderRadius: '4px'
                                         }}
                                     >
                                         削除

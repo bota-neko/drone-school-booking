@@ -54,7 +54,7 @@ export function Calendar() {
                     <span style={{ color: 'var(--text-secondary)' }}>複数人での同時講義（実機での練習/講義含む）（3000円/90分）</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#52525b', borderRadius: '2px' }}></span>
+                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: 'rgb(127, 127, 135)', borderRadius: '2px' }}></span>
                     <strong>自由練習:</strong>
                     <span style={{ color: 'var(--text-secondary)' }}>シミュレータや実機を使って自由に練習できる時間枠。（1500円/１時間）</span>
                 </div>
@@ -145,7 +145,7 @@ export function Calendar() {
                                             ? '#f97316'
                                             : ((event._count?.bookings || 0) >= event.maxAttendees
                                                 ? '#d4d4d8'
-                                                : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : '#52525b')),
+                                                : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'rgb(127, 127, 135)')),
                                         color: event.isBooked || event.type === 'SEMINAR' || ((event._count?.bookings || 0) < event.maxAttendees && event.type === 'FREE_PRACTICE') ? 'white' : 'var(--text-primary)',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',

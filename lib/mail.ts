@@ -190,7 +190,7 @@ export async function sendVerificationEmail(email: string, token: string) {
     }
 
     // Send (let errors throw to caller)
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
         from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
         to: email,
         subject: '【重要】メールアドレスの確認をお願いします',
@@ -211,6 +211,12 @@ export async function sendVerificationEmail(email: string, token: string) {
                 </div>
             `
     });
+
+    if (error) {
+        console.error('[Email] Resend API Error:', error);
+        throw new Error(error.message);
+    }
+
     console.log(`[Email] Verification sent to ${email}`);
 }
 

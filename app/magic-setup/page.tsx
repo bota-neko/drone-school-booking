@@ -1,9 +1,14 @@
 'use client';
 
+// Force this page to be dynamic to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 import { useActionState } from 'react'; // Stable hook in recent React/Next
 import { promoteUserToAdmin } from '@/app/actions/admin-setup';
 
 export default function AdminSetupPage() {
+    console.log('Magic Setup Page v2 rendering...');
+
     // Standard setup for useActionState (or useFormState in older versions)
     // If useActionState is not available, we can fallback to simple form submission or useState transition.
     // For safety in this environment, I'll use a simple client wrapper or just standard form submission.
@@ -11,7 +16,7 @@ export default function AdminSetupPage() {
     // Actually, let's keep it super simple to avoid hook version issues.
     return (
         <div className="container" style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-            <h1>Admin Setup Tool</h1>
+            <h1>Admin Setup Tool v2</h1>
             <p>Use this tool to force-promote a user to Admin.</p>
 
             <form action={async (formData) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { verifyEmailAction } from '@/app/actions/verify';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ function VerifyContent() {
     const token = searchParams.get('token');
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [message, setMessage] = useState('');
+    const hasRun = useRef(false);
 
     useEffect(() => {
         if (!token) {
@@ -19,16 +20,23 @@ function VerifyContent() {
             return;
         }
 
+        if (hasRun.current) return;
+        hasRun.current = true;
+
         const verify = async () => {
-            const result = await verifyEmailAction(token);
-            if (result.success) {
-                setStatus('success');
-                setMessage(result.message || '認証完了');
-                // Optional: Redirect after few seconds
-                setTimeout(() => router.push('/my-page'), 3000);
-            } else {
+            try {
+                const result = await verifyEmailAction(token);
+                if (result.success) {
+                    setStatus('success');
+                    setMessage(result.message || '認証完了');
+                    setTimeout(() => router.push('/my-page'), 3000);
+                } else {
+                    setStatus('error');
+                    setMessage(result.message || '認証エラー');
+                }
+            } catch (e) {
                 setStatus('error');
-                setMessage(result.message || '認証エラー');
+                setMessage('通信エラーが発生しました');
             }
         };
 

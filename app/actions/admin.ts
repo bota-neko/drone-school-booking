@@ -331,54 +331,56 @@ export async function deleteAllEvents() {
         console.error("Failed to delete all events:", error);
         return { success: false, message: '削除に失敗しました。' };
     }
+}
+}
 
 
-    // Data Seeder: Create Test Users (test02-test05)
-    export async function createTestUsers() {
-        const session = await verifySession();
-        if (session?.role !== 'ADMIN') {
-            throw new Error("Unauthorized");
-        }
+// Data Seeder: Create Test Users (test02-test05)
+export async function createTestUsers() {
+    const session = await verifySession();
+    if (session?.role !== 'ADMIN') {
+        throw new Error("Unauthorized");
+    }
 
-        try {
-            const passwordHash = await hashPassword('password123');
-            let count = 0;
+    try {
+        const passwordHash = await hashPassword('password123');
+        let count = 0;
 
-            for (let i = 2; i <= 5; i++) {
-                const email = `test0${i}@example.com`;
-                const existing = await prisma.user.findUnique({ where: { email } });
+        for (let i = 2; i <= 5; i++) {
+            const email = `test0${i}@example.com`;
+            const existing = await prisma.user.findUnique({ where: { email } });
 
-                if (!existing) {
-                    await prisma.user.create({
-                        data: {
-                            email,
-                            passwordHash,
-                            role: 'USER',
-                            profile: {
-                                create: {
-                                    fullName: `Test User 0${i}`,
-                                    phone: '090-0000-0000',
-                                    age: 20 + i,
-                                    address: 'Tokyo, Japan',
-                                    emergencyContact: '090-9999-9999',
-                                    termsAccepted: true,
-                                    privacyAccepted: true,
-                                    riskAccepted: true
-                                }
+            if (!existing) {
+                await prisma.user.create({
+                    data: {
+                        email,
+                        passwordHash,
+                        role: 'USER',
+                        profile: {
+                            create: {
+                                fullName: `Test User 0${i}`,
+                                phone: '090-0000-0000',
+                                age: 20 + i,
+                                address: 'Tokyo, Japan',
+                                emergencyContact: '090-9999-9999',
+                                termsAccepted: true,
+                                privacyAccepted: true,
+                                riskAccepted: true
                             }
                         }
-                    });
-                    count++;
-                }
+                    }
+                });
+                count++;
             }
-
-            revalidatePath('/admin/users');
-            return { success: true, message: `${count}人のテストユーザーを作成しました。` };
-
-        } catch (error) {
-            console.error("Failed to seed users:", error);
-            return { success: false, message: 'ユーザー作成に失敗しました。' };
         }
+
+        revalidatePath('/admin/users');
+        return { success: true, message: `${count}人のテストユーザーを作成しました。` };
+
+    } catch (error) {
+        console.error("Failed to seed users:", error);
+        return { success: false, message: 'ユーザー作成に失敗しました。' };
     }
+}
 
 

@@ -332,7 +332,7 @@ export async function deleteAllEvents() {
         return { success: false, message: '削除に失敗しました。' };
     }
 }
-}
+
 
 
 // Data Seeder: Create Test Users (test02-test05)

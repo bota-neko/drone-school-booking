@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense, useRef } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { verifyEmailAction } from '@/app/actions/verify';
 import Link from 'next/link';
@@ -9,43 +9,45 @@ function VerifyContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get('token');
-    const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
-    const hasRun = useRef(false);
 
-    useEffect(() => {
+    const handleVerify = async () => {
         if (!token) {
             setStatus('error');
             setMessage('トークンが見つかりません。');
             return;
         }
 
-        if (hasRun.current) return;
-        hasRun.current = true;
-
-        const verify = async () => {
-            try {
-                const result = await verifyEmailAction(token);
-                if (result.success) {
-                    setStatus('success');
-                    setMessage(result.message || '認証完了');
-                    setTimeout(() => router.push('/my-page'), 3000);
-                } else {
-                    setStatus('error');
-                    setMessage(result.message || '認証エラー');
-                }
-            } catch (e) {
+        setStatus('loading');
+        try {
+            const result = await verifyEmailAction(token);
+            if (result.success) {
+                setStatus('success');
+                setMessage(result.message || '認証完了');
+                setTimeout(() => router.push('/my-page'), 3000);
+            } else {
                 setStatus('error');
-                setMessage('通信エラーが発生しました');
+                setMessage(result.message || '認証エラー');
             }
-        };
-
-        verify();
-    }, [token, router]);
+        } catch (e) {
+            setStatus('error');
+            setMessage('通信エラーが発生しました');
+        }
+    };
 
     return (
         <div className="card" style={{ maxWidth: '500px', margin: '4rem auto', textAlign: 'center', padding: '2rem' }}>
             <h1 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>メールアドレス認証</h1>
+
+            {status === 'idle' && (
+                <div>
+                    <p style={{ marginBottom: '1.5rem' }}>ボタンを押して認証を完了させてください。</p>
+                    <button onClick={handleVerify} className="btn btn-primary">
+                        認証する
+                    </button>
+                </div>
+            )}
 
             {status === 'loading' && (
                 <div>

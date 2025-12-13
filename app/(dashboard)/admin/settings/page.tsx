@@ -1,3 +1,5 @@
+import { getSystemConfig } from '@/app/actions/settings';
+import { SettingsForm } from '@/components/admin/settings-form';
 import { DeleteScheduleButton } from '@/components/admin/delete-schedule-button';
 
 export default async function AdminSettingsPage() {

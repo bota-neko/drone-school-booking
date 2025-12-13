@@ -383,4 +383,34 @@ export async function createTestUsers() {
     }
 }
 
+// Update Admin Email
+export async function updateAdminEmail(newEmail: string) {
+    const session = await verifySession();
+    if (session?.role !== 'ADMIN') {
+        throw new Error("Unauthorized");
+    }
+
+    if (!newEmail || !newEmail.includes('@')) {
+        return { success: false, message: '有効なメールアドレスを入力してください。' };
+    }
+
+    try {
+        const existing = await prisma.user.findUnique({ where: { email: newEmail } });
+        if (existing) {
+            return { success: false, message: 'このメールアドレスは既に使用されています。' };
+        }
+
+        await prisma.user.update({
+            where: { id: session.userId },
+            data: { email: newEmail }
+        });
+
+        revalidatePath('/admin');
+        return { success: true, message: '管理者メールアドレスを変更しました。' };
+    } catch (error) {
+        console.error("Failed to update admin email:", error);
+        return { success: false, message: '更新に失敗しました。' };
+    }
+}
+
 

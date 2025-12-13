@@ -100,9 +100,11 @@ export function AdminCalendar() {
                                         fontSize: '0.75rem',
                                         padding: '2px 4px',
                                         borderRadius: '2px',
-                                        background: event.bookings.length > 0 ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
-                                        color: event.bookings.length > 0 ? 'white' : 'var(--text-primary)',
-                                        border: event.bookings.length === 0 ? '1px solid var(--border-color)' : 'none',
+                                        background: ((event.bookings?.length || 0) >= event.maxAttendees)
+                                            ? '#d4d4d8'
+                                            : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'rgb(127, 127, 135)'),
+                                        color: ((event.bookings?.length || 0) >= event.maxAttendees) ? 'var(--text-primary)' : 'white',
+                                        border: 'none',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis'

@@ -109,7 +109,8 @@ export async function quickUpsertFreePractice(date: string, startTimes: string[]
     try {
         await prisma.$transaction(async (tx) => {
             for (const time of startTimes) {
-                const startDateTime = new Date(`${date}T${time}`);
+                // Force JST (+09:00)
+                const startDateTime = new Date(`${date}T${time}:00+09:00`);
                 // Assume 1 hour default duration
                 const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
 
@@ -168,7 +169,8 @@ export async function quickDeleteFreePractice(date: string, startTimes: string[]
     try {
         await prisma.$transaction(async (tx) => {
             for (const time of startTimes) {
-                const startDateTime = new Date(`${date}T${time}`);
+                // Force JST (+09:00)
+                const startDateTime = new Date(`${date}T${time}:00+09:00`);
 
                 // Find event to delete (be safe about types)
                 const existing = await tx.event.findFirst({

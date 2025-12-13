@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { verifySession, createSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
+import crypto from 'crypto';
 
 export async function verifyEmailAction(token: string) {
     if (!token) return { success: false, message: 'Invalid token' };
@@ -38,5 +39,49 @@ export async function verifyEmailAction(token: string) {
     } catch (error) {
         console.error("Verification failed:", error);
         return { success: false, message: '認証に失敗しました。' };
+    }
+}
+
+// Resend Verification Email Action
+export async function resendVerificationEmail() {
+    const session = await verifySession();
+    if (!session?.isAuth) {
+        return { success: false, message: 'ログインしてください。' };
+    }
+
+    const { sendVerificationEmail } = await import('@/lib/mail');
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: session.userId }
+        });
+
+        if (!user) {
+            return { success: false, message: 'ユーザーが見つかりません。' };
+        }
+
+        if (user.emailVerified) {
+            return { success: false, message: '既に認証済みです。' };
+        }
+
+        // Generate new token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                verificationToken,
+                tokenExpiry
+            }
+        });
+
+        // Send email
+        await sendVerificationEmail(user.email, verificationToken);
+
+        return { success: true, message: '認証メールを再送しました。' };
+    } catch (error) {
+        console.error('Resend Error:', error);
+        return { success: false, message: 'メール送信に失敗しました。' };
     }
 }

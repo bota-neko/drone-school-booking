@@ -19,6 +19,11 @@ export default async function MyPage() {
         orderBy: { event: { startTime: 'asc' } }
     });
 
+    const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { emailVerified: true }
+    });
+
     // Define the logout server action
     const logout = async () => {
         'use server';
@@ -31,6 +36,27 @@ export default async function MyPage() {
         <div className="container" style={{ padding: '2rem 1rem' }}>
             <h1 style={{ marginBottom: '1.5rem' }}>マイページ</h1>
             <p style={{ marginBottom: '2rem' }}>おかえりなさい！</p>
+
+            {!user?.emailVerified && (
+                <div style={{
+                    background: '#fff3cd',
+                    color: '#856404',
+                    padding: '1rem',
+                    borderRadius: '5px',
+                    border: '1px solid #ffeeba',
+                    marginBottom: '2rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem'
+                }}>
+                    <strong>⚠ メールアドレスが未認証です</strong>
+                    <p style={{ margin: 0, fontSize: '0.9rem' }}>
+                        ご登録のメールアドレスに送信されたリンクをクリックして認証を完了させてください。<br />
+                        認証が完了するまで、イベントの予約はできません。
+                    </p>
+                    <ResendVerificationForm />
+                </div>
+            )}
 
             <div style={{ marginBottom: '2rem' }}>
                 <a href="/calendar" className="btn btn-primary" style={{ display: 'inline-block', textDecoration: 'none', width: 'auto' }}>
@@ -59,3 +85,6 @@ export default async function MyPage() {
         </div >
     );
 }
+
+// Client Component Wrapper for Resend Button (Inline for simplicity or could be separate)
+import { ResendVerificationForm } from './resend-form';

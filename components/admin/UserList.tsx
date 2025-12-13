@@ -83,26 +83,21 @@ export function UserList({ initialUsers }: { initialUsers: User[] }) {
                                     >
                                         詳細
                                     </Link>
-                                    <form action={async () => {
-                                        if (confirm('本当に削除しますか？\n（この操作は取り消せません）')) {
-                                            await deleteUser(user.id);
-                                            setUsers(users.filter(u => u.id !== user.id)); // Update state after successful deletion
-                                            alert('ユーザーを削除しました。');
-                                        }
-                                    }}>
-                                        <button
-                                            type="submit"
-                                            className="btn"
-                                            style={{
-                                                background: 'var(--status-error)',
-                                                color: 'white',
-                                                padding: '0.25rem 0.5rem',
-                                                fontSize: '0.8rem'
-                                            }}
-                                        >
-                                            削除
-                                        </button>
-                                    </form>
+                                    <button
+                                        type="button"
+                                        className="btn"
+                                        onClick={() => handleDelete(user.id)}
+                                        style={{
+                                            background: 'var(--status-error)',
+                                            color: 'white',
+                                            padding: '0.25rem 0.5rem',
+                                            fontSize: '0.8rem',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        削除
+                                    </button>
                                 </div>
                             </td>
                         </tr>

@@ -5,7 +5,8 @@ import { prisma } from '@/lib/prisma';
 import { hashPassword, verifyPassword } from '@/lib/auth';
 import { createSession, deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
-import { sendAdminNewUserNotification } from '@/lib/mail';
+import { sendAdminNewUserNotification, sendVerificationEmail } from '@/lib/mail';
+import { randomBytes } from 'crypto';
 
 const signupSchema = z.object({
     fullName: z.string().min(1, "名前を入力してください"),
@@ -73,10 +74,16 @@ export async function signup(prevState: AuthState, formData: FormData): Promise<
 
         const hashedPassword = await hashPassword(password);
 
+        // Generate Verification Token
+        const verificationToken = randomBytes(32).toString('hex');
+        const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
         const user = await prisma.user.create({
             data: {
                 email,
                 passwordHash: hashedPassword,
+                verificationToken,
+                tokenExpiry,
                 profile: {
                     create: {
                         fullName,
@@ -92,6 +99,9 @@ export async function signup(prevState: AuthState, formData: FormData): Promise<
                 }
             },
         });
+
+        // Send Verification Email
+        await sendVerificationEmail(email, verificationToken);
 
         await createSession(user.id, user.role);
     } catch (error) {

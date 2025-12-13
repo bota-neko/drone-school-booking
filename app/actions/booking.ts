@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { verifySession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
-import { sendBookingConfirmation, sendCancellationEmail, sendAdminBookingNotification } from '@/lib/mail';
+import { sendBookingConfirmation, sendCancellationEmail, sendAdminBookingNotification, sendAdminCancellationNotification } from '@/lib/mail';
 // import { redirect } from 'next/navigation';
 
 export async function bookEvent(eventId: string) {
@@ -19,6 +19,14 @@ export async function bookEvent(eventId: string) {
         });
 
         if (!user) throw new Error("User not found");
+
+        // Verify Email Check
+        // If emailVerified is null, block booking.
+        // allow admin to bypass or if existing user (null) should be treated?
+        // Plan said: "Set existing users to verified". So if null, it means UNVERIFIED under new system.
+        if (!user.emailVerified && user.role !== 'ADMIN') {
+            throw new Error("予約するにはメールアドレスの認証が必要です。登録メールをご確認ください。");
+        }
 
         // Transaction to ensure slot availability
         await prisma.$transaction(async (tx) => {
@@ -117,6 +125,9 @@ export async function cancelBooking(bookingId: string) {
         console.log(`[CancelBooking] Successfully deleted booking ${bookingId}`);
         // Send cancellation email
         await sendCancellationEmail(booking.user.email, booking.event);
+
+        // Notify Admin
+        await sendAdminCancellationNotification(booking.event, booking.user);
 
     } catch (error: any) {
         console.error('[CancelBooking] Cancellation failed with error:', error);

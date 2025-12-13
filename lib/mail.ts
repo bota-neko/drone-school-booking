@@ -132,47 +132,30 @@ export async function sendAdminBookingNotification(event: EventDetails, userEmai
                         <p><strong>場所:</strong> ${event.location || '現地'}</p>
                     </div>
 
-                    <p style="font-size: 0.8rem; color: #666;">管理画面から詳細を確認してください。</p>
-                </div>
-            `
-        });
-        console.log(`[Email] Admin notification sent to ${ADMIN_EMAIL}`);
-    } catch (error) {
-        console.error('[Email] Failed to send admin notification:', error);
-    }
-}
-
-export async function sendAdminNewUserNotification(userEmail: string, userName: string) {
-    // Development Fallback
-    if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: NEW USER NOTIFICATION ---');
-        console.log(`To: ${ADMIN_EMAIL}`);
-        console.log(`New User: ${userName} (${userEmail})`);
-        console.log('-----------------------------------------------------');
         return;
     }
 
     try {
         await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            from: `${ SENDER_NAME } < ${ SENDER_EMAIL } > `,
             to: ADMIN_EMAIL,
             subject: `【ユーザー登録通知】新規ユーザーが登録されました`,
             html: `
-                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-                    <h2 style="color: #333;">新規ユーザー登録のお知らせ</h2>
-                    <p>新しいユーザーがアカウントを作成しました。</p>
-                    
-                    <div style="background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                        <h3 style="margin-top: 0; color: #444;">ユーザー情報</h3>
-                        <p><strong>名前:</strong> ${userName}</p>
-                        <p><strong>メール:</strong> ${userEmail}</p>
-                    </div>
+        < div style = "font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;" >
+        <h2 style="color: #333;" > 新規ユーザー登録のお知らせ </h2>
+        < p > 新しいユーザーがアカウントを作成しました。</p>
 
-                    <p style="font-size: 0.8rem; color: #666;">管理画面のユーザー一覧で詳細を確認できます。</p>
-                </div>
+        < div style = "background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;" >
+        <h3 style="margin-top: 0; color: #444;" > ユーザー情報 </h3>
+        < p > <strong>名前: </strong> ${userName}</p >
+        <p><strong>メール: </strong> ${userEmail}</p >
+        </div>
+
+        < p style = "font-size: 0.8rem; color: #666;" > 管理画面のユーザー一覧で詳細を確認できます。</p>
+        </div>
             `
         });
-        console.log(`[Email] Admin new user notification sent to ${ADMIN_EMAIL}`);
+        console.log(`[Email] Admin new user notification sent to ${ ADMIN_EMAIL }`);
     } catch (error) {
         console.error('[Email] Failed to send admin new user notification:', error);
     }

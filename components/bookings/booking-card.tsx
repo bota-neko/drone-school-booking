@@ -72,7 +72,7 @@ export function BookingCard({ booking }: { booking: Booking }) {
                 gap: '1rem'
             }}>
                 <span className={`badge ${booking.status.toLowerCase()}`} style={{
-                    background: booking.status === 'CONFIRMED' ? 'var(--status-success)' : 'var(--text-muted)',
+                    background: booking.status === 'CONFIRMED' ? '#f97316' : 'var(--text-muted)',
                     color: 'white',
                     padding: '4px 8px',
                     borderRadius: '4px',

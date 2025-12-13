@@ -54,9 +54,14 @@ export function Calendar() {
                     <span style={{ color: 'var(--text-secondary)' }}>複数人での同時講義（実機での練習/講義含む）（3000円/90分）</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: 'var(--status-success)', borderRadius: '2px' }}></span>
+                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#52525b', borderRadius: '2px' }}></span>
                     <strong>自由練習:</strong>
                     <span style={{ color: 'var(--text-secondary)' }}>シミュレータや実機を使って自由に練習できる時間枠。（1500円/１時間）</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
+                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#d4d4d8', borderRadius: '2px' }}></span>
+                    <strong>満席:</strong>
+                    <span style={{ color: 'var(--text-secondary)' }}>予約受付終了</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
                     <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#f97316', borderRadius: '2px' }}></span>
@@ -136,8 +141,12 @@ export function Calendar() {
                                         fontSize: '0.75rem',
                                         padding: '2px 4px',
                                         borderRadius: '2px',
-                                        background: event.isBooked ? '#f97316' : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'var(--status-success)'),
-                                        color: 'white',
+                                        background: event.isBooked
+                                            ? '#f97316'
+                                            : ((event._count?.bookings || 0) >= event.maxAttendees
+                                                ? '#d4d4d8'
+                                                : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : '#52525b')),
+                                        color: event.isBooked || event.type === 'SEMINAR' || ((event._count?.bookings || 0) < event.maxAttendees && event.type === 'FREE_PRACTICE') ? 'white' : 'var(--text-primary)',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis'

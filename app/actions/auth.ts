@@ -81,6 +81,7 @@ export async function signup(prevState: AuthState, formData: FormData): Promise<
         const user = await prisma.user.create({
             data: {
                 email,
+                role: 'USER', // Explicitly set role to USER for safety
                 passwordHash: hashedPassword,
                 verificationToken,
                 tokenExpiry,

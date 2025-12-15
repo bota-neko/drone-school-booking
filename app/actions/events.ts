@@ -53,6 +53,13 @@ export async function getEvents(start: Date, end: Date): Promise<EventWithCount[
 }
 
 export async function getAdminEvents(start: Date, end: Date) {
+    const session = await verifySession();
+    // Strict Admin Check
+    if (!session || session.role !== 'ADMIN') {
+        console.warn(`Unauthorized access attempt to getAdminEvents by user: ${session?.userId || 'unknown'}`);
+        return [];
+    }
+
     try {
         const events = await prisma.event.findMany({
             where: {

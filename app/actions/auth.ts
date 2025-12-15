@@ -102,7 +102,17 @@ export async function signup(prevState: AuthState, formData: FormData): Promise<
         });
 
         // Send Verification Email
-        await sendVerificationEmail(email, verificationToken);
+        try {
+            await sendVerificationEmail(email, verificationToken);
+        } catch (emailError: any) {
+            console.error('Email sending failed, rolling back user creation:', emailError);
+            // Rollback: Delete the user we just created so they can try again.
+            await prisma.user.delete({ where: { id: user.id } });
+
+            return {
+                message: `メール送信に失敗しました: ${emailError.message || 'Unknown error'}`,
+            };
+        }
 
         await createSession(user.id, user.role);
     } catch (error) {

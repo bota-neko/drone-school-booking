@@ -85,7 +85,7 @@ export function RegisterForm() {
 
                 <div className="form-group">
                     <label htmlFor="emergencyContact" className="label">緊急連絡先 (氏名・電話番号) <span style={{ color: 'red', fontSize: '0.8em' }}>*</span></label>
-                    <input id="emergencyContact" name="emergencyContact" type="text" className="input" placeholder="例: 父・東京太郎・090-XXXX-XXXX" required />
+                    <input id="emergencyContact" name="emergencyContact" type="text" className="input" placeholder="例: 父・090-XXXX-XXXX" required />
                     {state?.errors?.emergencyContact && <p className="error-message">{state.errors.emergencyContact}</p>}
                 </div>
 
@@ -95,9 +95,9 @@ export function RegisterForm() {
                         id="droneHistory"
                         name="droneHistory"
                         className="input"
-                        placeholder="例: 経験なし、DJI Mini 2所有、二等資格あり など"
+                        placeholder="例: 二等資格あり"
                         rows={3}
-                        style={{ resize: 'vertical', minHeight: '80px' }}
+                        style={{ resize: 'vertical', minHeight: '80px', fontFamily: 'inherit' }}
                     ></textarea>
                 </div>
             </div>

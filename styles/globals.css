@@ -69,9 +69,11 @@ button {
 .input {
     width: 100%;
     padding: 0.75rem;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    /* Slightly sharper */
+    border: 1px solid #d1d5db;
+    /* Neutral gray */
+    background: #ffffff;
     color: var(--text-primary);
     font-size: 1rem;
     transition: border-color var(--transition-fast);
@@ -80,7 +82,8 @@ button {
 .input:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px var(--accent-glow);
+    box-shadow: 0 0 0 1px var(--accent-primary);
+    /* sharper focus ring */
 }
 
 .btn {

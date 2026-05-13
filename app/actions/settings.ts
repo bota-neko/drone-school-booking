@@ -23,16 +23,34 @@ export type ConfigState = {
 
 // Fetch config helper
 export async function getSystemConfig() {
-    const config = await prisma.systemConfig.upsert({
-        where: { id: 'default' },
-        update: {},
-        create: {
+    try {
+        const config = await prisma.systemConfig.findUnique({
+            where: { id: 'default' },
+        });
+
+        if (config) return config;
+
+        // Fallback or Initial Create if not found
+        return await prisma.systemConfig.upsert({
+            where: { id: 'default' },
+            update: {},
+            create: {
+                id: 'default',
+                siteTitle: 'SORA-MUSUBI',
+                siteDescription: 'Drone School Reservation System',
+            },
+        });
+    } catch (e) {
+        console.error('Failed to fetch config:', e);
+        // Return a default object so the app doesn't crash
+        return {
             id: 'default',
             siteTitle: 'SORA-MUSUBI',
             siteDescription: 'Drone School Reservation System',
-        },
-    });
-    return config;
+            logoUrl: null,
+            updatedAt: new Date(),
+        };
+    }
 }
 
 // Update action

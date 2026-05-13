@@ -47,26 +47,45 @@ export function Calendar() {
     return (
         <div className="card">
             {/* Event Type Legend */}
-            <div style={{ marginBottom: '1.5rem', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
-                <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: 'var(--accent-primary)', borderRadius: '2px' }}></span>
-                    <strong>セミナー:</strong>
-                    <span style={{ color: 'var(--text-secondary)' }}>複数人での同時講義（実機での練習/講義含む）（3000円/90分）</span>
+            <div style={{ marginBottom: '1.5rem', background: 'var(--bg-secondary)', padding: '1.25rem', borderRadius: '8px', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                            <span style={{ display: 'inline-block', width: '12px', height: '12px', background: 'var(--accent-primary)', borderRadius: '2px' }}></span>
+                            <strong style={{ fontSize: '1rem' }}>初回体験講習 （FPVドローン初心者講習会）90分</strong>
+                        </div>
+                        <div style={{ paddingLeft: '20px' }}>
+                            大人 5,000円 / 子ども 2,000円
+                        </div>
+                    </div>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                            <span style={{ display: 'inline-block', width: '12px', height: '12px', background: 'rgb(127, 127, 135)', borderRadius: '2px' }}></span>
+                            <strong style={{ fontSize: '1rem' }}>自由練習枠 60分</strong>
+                        </div>
+                        <div style={{ paddingLeft: '20px' }}>
+                            大人 3,000円 / 子ども 1,500円
+                        </div>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: 'rgb(127, 127, 135)', borderRadius: '2px' }}></span>
-                    <strong>自由練習:</strong>
-                    <span style={{ color: 'var(--text-secondary)' }}>シミュレータや実機を使って自由に練習できる時間枠。（1500円/１時間）</span>
+
+                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    <p>※子ども料金は18歳以下（高校生まで）が対象です。</p>
+                    <p>※自由練習枠は初回体験講習を受講された方が対象です。</p>
+                    <p>※講師サポートあり・機体貸出あり</p>
+                    <p>※少人数・予約制</p>
+                    <p>※何回でも受講可能</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
-                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#d4d4d8', borderRadius: '2px' }}></span>
-                    <strong>満席:</strong>
-                    <span style={{ color: 'var(--text-secondary)' }}>予約受付終了</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '0.5rem' }}>
-                    <span style={{ display: 'inline-block', width: '12px', height: '12px', background: '#f97316', borderRadius: '2px' }}></span>
-                    <strong>予約済み:</strong>
-                    <span style={{ color: 'var(--text-secondary)' }}>自分が予約している枠</span>
+
+                <div style={{ marginTop: '0.75rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ display: 'inline-block', width: '10px', height: '10px', background: '#d4d4d8', borderRadius: '2px' }}></span>
+                        <span>満席（予約受付終了）</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ display: 'inline-block', width: '10px', height: '10px', background: '#f97316', borderRadius: '2px' }}></span>
+                        <span>予約済み（自分の予約）</span>
+                    </div>
                 </div>
             </div>
 

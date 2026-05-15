@@ -26,6 +26,17 @@ export default async function BookingConfirmPage({
         return <div className="container">イベントが見つかりません</div>;
     }
 
+    const formatJST = (date: Date, options: Intl.DateTimeFormatOptions) => {
+        return new Intl.DateTimeFormat('ja-JP', {
+            ...options,
+            timeZone: 'Asia/Tokyo',
+        }).format(date);
+    };
+
+    const dateStr = formatJST(event.startTime, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+    const startTimeStr = formatJST(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: false });
+    const endTimeStr = formatJST(event.endTime, { hour: '2-digit', minute: '2-digit', hour12: false });
+
     return (
         <div className="container center" style={{ marginTop: '2rem' }}>
             <div className="card booking-card">
@@ -40,12 +51,12 @@ export default async function BookingConfirmPage({
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div>
                             <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>日付</div>
-                            <div>{format(event.startTime, 'yyyy年 MMMM d日 (EEEE)', { locale: ja })}</div>
+                            <div>{dateStr}</div>
                         </div>
                         <div>
                             <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>時間</div>
                             <div>
-                                {format(event.startTime, 'HH:mm', { locale: ja })} - {format(event.endTime, 'HH:mm', { locale: ja })}
+                                {startTimeStr} - {endTimeStr}
                             </div>
                         </div>
                     </div>

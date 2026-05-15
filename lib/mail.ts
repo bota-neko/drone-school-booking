@@ -15,6 +15,13 @@ interface EventDetails {
     location?: string | null;
 }
 
+function formatInJST(date: Date, options: Intl.DateTimeFormatOptions) {
+    return new Intl.DateTimeFormat('ja-JP', {
+        ...options,
+        timeZone: 'Asia/Tokyo',
+    }).format(date);
+}
+
 export async function sendBookingConfirmation(email: string, event: EventDetails) {
     // Development Fallback
     if (!process.env.RESEND_API_KEY) {
@@ -27,8 +34,10 @@ export async function sendBookingConfirmation(email: string, event: EventDetails
     }
 
     try {
-        const dateStr = format(event.startTime, 'yyyy年MM月dd日 (EEE)', { locale: ja });
-        const timeStr = `${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`;
+        const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+        const startTimeStr = formatInJST(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const endTimeStr = formatInJST(event.endTime, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const timeStr = `${startTimeStr} - ${endTimeStr}`;
 
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
@@ -68,7 +77,7 @@ export async function sendCancellationEmail(email: string, event: EventDetails) 
     }
 
     try {
-        const dateStr = format(event.startTime, 'yyyy年MM月dd日 (EEE)', { locale: ja });
+        const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
 
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
@@ -123,8 +132,10 @@ export async function sendAdminBookingNotification(event: EventDetails, userEmai
     }
 
     try {
-        const dateStr = format(event.startTime, 'yyyy年MM月dd日 (EEE)', { locale: ja });
-        const timeStr = `${format(event.startTime, 'HH:mm')} - ${format(event.endTime, 'HH:mm')}`;
+        const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+        const startTimeStr = formatInJST(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const endTimeStr = formatInJST(event.endTime, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const timeStr = `${startTimeStr} - ${endTimeStr}`;
 
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
@@ -252,7 +263,7 @@ export async function sendAdminCancellationNotification(event: any, user: any) {
     }
 
     try {
-        const dateStr = format(event.startTime, 'yyyy年MM月dd日 (EEE) HH:mm', { locale: ja });
+        const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,

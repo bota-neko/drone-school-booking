@@ -7,7 +7,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const SENDER_EMAIL = process.env.SENDER_EMAIL_ADDRESS || 'onboarding@resend.dev'; // Must be verified domain in Production
 const SENDER_NAME = 'Drone School';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'botaneko.adachi@gmail.com';
 
 interface EventDetails {
     title: string;
@@ -95,11 +94,28 @@ export async function sendCancellationEmail(email: string, event: EventDetails) 
     }
 }
 
+async function getAdminEmail() {
+    if (process.env.ADMIN_EMAIL) return process.env.ADMIN_EMAIL;
+    
+    try {
+        const { prisma } = await import('./prisma');
+        const admin = await prisma.user.findFirst({
+            where: { role: 'ADMIN' },
+            select: { email: true }
+        });
+        return admin?.email || 'botaneko.adachi@gmail.com';
+    } catch (error) {
+        return 'botaneko.adachi@gmail.com';
+    }
+}
+
 export async function sendAdminBookingNotification(event: EventDetails, userEmail: string, userName: string) {
+    const adminEmail = await getAdminEmail();
+    
     // Development Fallback
     if (!process.env.RESEND_API_KEY) {
         console.log('--- [DEV] EMAIL SIMULATION: ADMIN NOTIFICATION ---');
-        console.log(`To: ${ADMIN_EMAIL}`);
+        console.log(`To: ${adminEmail}`);
         console.log(`User: ${userName} (${userEmail})`);
         console.log(`Event: ${event.title}`);
         console.log('--------------------------------------------------');
@@ -112,7 +128,7 @@ export async function sendAdminBookingNotification(event: EventDetails, userEmai
 
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
-            to: ADMIN_EMAIL,
+            to: adminEmail,
             subject: `【予約通知】新規予約が入りました (${event.title})`,
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -135,17 +151,19 @@ export async function sendAdminBookingNotification(event: EventDetails, userEmai
                 </div>
             `
         });
-        console.log(`[Email] Admin notification sent to ${ADMIN_EMAIL}`);
+        console.log(`[Email] Admin notification sent to ${adminEmail}`);
     } catch (error) {
         console.error('[Email] Failed to send admin notification:', error);
     }
 }
 
 export async function sendAdminNewUserNotification(userEmail: string, userName: string) {
+    const adminEmail = await getAdminEmail();
+    
     // Development Fallback
     if (!process.env.RESEND_API_KEY) {
         console.log('--- [DEV] EMAIL SIMULATION: NEW USER NOTIFICATION ---');
-        console.log(`To: ${ADMIN_EMAIL}`);
+        console.log(`To: ${adminEmail}`);
         console.log(`New User: ${userName} (${userEmail})`);
         console.log('-----------------------------------------------------');
         return;
@@ -154,7 +172,7 @@ export async function sendAdminNewUserNotification(userEmail: string, userName: 
     try {
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
-            to: ADMIN_EMAIL,
+            to: adminEmail,
             subject: '【ユーザー登録通知】新規ユーザーが登録されました',
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -171,7 +189,7 @@ export async function sendAdminNewUserNotification(userEmail: string, userName: 
                 </div>
             `
         });
-        console.log(`[Email] Admin new user notification sent to ${ADMIN_EMAIL}`);
+        console.log(`[Email] Admin new user notification sent to ${adminEmail}`);
     } catch (error) {
         console.error('[Email] Failed to send admin new user notification:', error);
     }
@@ -222,9 +240,11 @@ export async function sendVerificationEmail(email: string, token: string) {
 
 // Admin Cancellation Notification
 export async function sendAdminCancellationNotification(event: any, user: any) {
+    const adminEmail = await getAdminEmail();
+    
     if (!process.env.RESEND_API_KEY) {
         console.log('--- [DEV] EMAIL SIMULATION: ADMIN CANCELLATION ---');
-        console.log(`To: ${ADMIN_EMAIL}`);
+        console.log(`To: ${adminEmail}`);
         console.log(`Canceled By: ${user.email}`);
         console.log(`Event: ${event.title}`);
         console.log('--------------------------------------------------');
@@ -236,7 +256,7 @@ export async function sendAdminCancellationNotification(event: any, user: any) {
 
         await resend.emails.send({
             from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
-            to: ADMIN_EMAIL,
+            to: adminEmail,
             subject: '【キャンセル発生】予約がキャンセルされました',
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -253,7 +273,7 @@ export async function sendAdminCancellationNotification(event: any, user: any) {
                 </div>
             `
         });
-        console.log(`[Email] Admin cancellation notice sent to ${ADMIN_EMAIL}`);
+        console.log(`[Email] Admin cancellation notice sent to ${adminEmail}`);
     } catch (error) {
         console.error('[Email] Failed to send admin cancellation notice:', error);
     }

@@ -34,7 +34,7 @@ export function ChangeEmailForm() {
                 テストなどのために、一時的に別のアドレスに変更する場合に使用します。<br />
                 変更後は新しいアドレスでログインしてください。
             </p>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <input
                     type="email"
                     value={email}
@@ -42,12 +42,13 @@ export function ChangeEmailForm() {
                     placeholder="新しいメールアドレス"
                     required
                     className="input"
-                    style={{ flex: 1 }}
+                    style={{ flex: '1 1 300px' }}
                 />
                 <button
                     type="submit"
                     className="btn btn-primary"
                     disabled={isLoading}
+                    style={{ width: 'auto' }}
                 >
                     {isLoading ? '更新中...' : '変更する'}
                 </button>

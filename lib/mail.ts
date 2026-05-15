@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const SENDER_EMAIL = process.env.SENDER_EMAIL_ADDRESS || 'onboarding@resend.dev'; // Must be verified domain in Production
 const SENDER_NAME = 'Drone School';
-const ADMIN_EMAIL = 'botaneko.adachi@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'botaneko.adachi@gmail.com';
 
 interface EventDetails {
     title: string;

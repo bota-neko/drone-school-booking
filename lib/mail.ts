@@ -1,18 +1,28 @@
 import { Resend } from 'resend';
-import { format } from 'date-fns';
-import { ja } from 'date-fns/locale';
 
-// Initialize Resend with API Key from environment
+// Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-const SENDER_EMAIL = process.env.SENDER_EMAIL_ADDRESS || 'onboarding@resend.dev'; // Must be verified domain in Production
-const SENDER_NAME = 'Drone School';
 
 interface EventDetails {
     title: string;
     startTime: Date;
     endTime: Date;
     location?: string | null;
+}
+
+async function getMailSettings() {
+    const { prisma } = await import('./prisma');
+    const config = await prisma.systemConfig.findUnique({ where: { id: 'default' } });
+    const admin = await prisma.user.findFirst({
+        where: { role: 'ADMIN' },
+        select: { email: true }
+    });
+
+    return {
+        senderName: process.env.SENDER_NAME || config?.siteTitle || 'Drone School',
+        senderEmail: process.env.SENDER_EMAIL_ADDRESS || 'onboarding@resend.dev',
+        adminEmail: process.env.ADMIN_EMAIL || admin?.email || 'botaneko.adachi@gmail.com'
+    };
 }
 
 function formatInJST(date: Date, options: Intl.DateTimeFormatOptions) {
@@ -23,13 +33,10 @@ function formatInJST(date: Date, options: Intl.DateTimeFormatOptions) {
 }
 
 export async function sendBookingConfirmation(email: string, event: EventDetails) {
-    // Development Fallback
+    const { senderName, senderEmail } = await getMailSettings();
+    
     if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: BOOKING CONFIRMATION ---');
-        console.log(`To: ${email}`);
-        console.log(`Event: ${event.title}`);
-        console.log(`Time: ${format(event.startTime, 'yyyy-MM-dd HH:mm', { locale: ja })}`);
-        console.log('----------------------------------------------------');
+        console.log('--- [DEV] EMAIL SIMULATION: BOOKING ---');
         return;
     }
 
@@ -37,256 +44,156 @@ export async function sendBookingConfirmation(email: string, event: EventDetails
         const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
         const startTimeStr = formatInJST(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: false });
         const endTimeStr = formatInJST(event.endTime, { hour: '2-digit', minute: '2-digit', hour12: false });
-        const timeStr = `${startTimeStr} - ${endTimeStr}`;
 
         await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            from: `${senderName} <${senderEmail}>`,
             to: email,
             subject: `【予約完了】${event.title} (${dateStr})`,
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h2 style="color: #333;">ご予約ありがとうございます</h2>
                     <p>以下の内容で予約を承りました。</p>
-                    
                     <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
                         <p><strong>イベント:</strong> ${event.title}</p>
-                        <p><strong>日時:</strong> ${dateStr} ${timeStr}</p>
+                        <p><strong>日時:</strong> ${dateStr} ${startTimeStr} - ${endTimeStr}</p>
                         <p><strong>場所:</strong> ${event.location || '現地'}</p>
                     </div>
-
                     <p>当日お会いできるのを楽しみにしています。</p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                    <p style="font-size: 0.8rem; color: #666;">※キャンセルはマイページから行えます。</p>
                 </div>
             `
         });
-        console.log(`[Email] Booking confirmation sent to ${email}`);
     } catch (error) {
-        console.error('[Email] Failed to send booking confirmation:', error);
-        // Do not throw error to avoid killing the booking flow even if email fails
+        console.error('[Email] Failed:', error);
     }
 }
 
 export async function sendCancellationEmail(email: string, event: EventDetails) {
-    // Development Fallback
-    if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: CANCELLATION ---');
-        console.log(`To: ${email}`);
-        console.log('--------------------------------------------');
-        return;
-    }
+    const { senderName, senderEmail } = await getMailSettings();
+    if (!process.env.RESEND_API_KEY) return;
 
     try {
         const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
-
         await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            from: `${senderName} <${senderEmail}>`,
             to: email,
             subject: `【予約キャンセル】${event.title} (${dateStr})`,
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h2 style="color: #333;">予約キャンセルのご連絡</h2>
                     <p>以下の予約をキャンセルいたしました。</p>
-                    
                     <div style="background: #fff0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
                         <p><strong>イベント:</strong> ${event.title}</p>
                         <p><strong>日時:</strong> ${dateStr}</p>
                     </div>
-
-                    <p>またのご利用をお待ちしております。</p>
                 </div>
             `
         });
-        console.log(`[Email] Cancellation notice sent to ${email}`);
     } catch (error) {
-        console.error('[Email] Failed to send cancellation email:', error);
-    }
-}
-
-async function getAdminEmail() {
-    if (process.env.ADMIN_EMAIL) return process.env.ADMIN_EMAIL;
-    
-    try {
-        const { prisma } = await import('./prisma');
-        const admin = await prisma.user.findFirst({
-            where: { role: 'ADMIN' },
-            select: { email: true }
-        });
-        return admin?.email || 'botaneko.adachi@gmail.com';
-    } catch (error) {
-        return 'botaneko.adachi@gmail.com';
+        console.error('[Email] Failed:', error);
     }
 }
 
 export async function sendAdminBookingNotification(event: EventDetails, userEmail: string, userName: string) {
-    const adminEmail = await getAdminEmail();
-    
-    // Development Fallback
-    if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: ADMIN NOTIFICATION ---');
-        console.log(`To: ${adminEmail}`);
-        console.log(`User: ${userName} (${userEmail})`);
-        console.log(`Event: ${event.title}`);
-        console.log('--------------------------------------------------');
-        return;
-    }
+    const { senderName, senderEmail, adminEmail } = await getMailSettings();
+    if (!process.env.RESEND_API_KEY) return;
 
     try {
         const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
-        const startTimeStr = formatInJST(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: false });
-        const endTimeStr = formatInJST(event.endTime, { hour: '2-digit', minute: '2-digit', hour12: false });
-        const timeStr = `${startTimeStr} - ${endTimeStr}`;
+        const timeStr = `${formatInJST(event.startTime, { hour: '2-digit', minute: '2-digit', hour12: false })} - ${formatInJST(event.endTime, { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
         await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            from: `${senderName} <${senderEmail}>`,
             to: adminEmail,
             subject: `【予約通知】新規予約が入りました (${event.title})`,
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h2 style="color: #333;">新規予約のお知らせ</h2>
-                    <p>ユーザーから新しい予約が入りました。</p>
-                    
                     <div style="background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                        <h3 style="margin-top: 0; color: #444;">予約者情報</h3>
                         <p><strong>名前:</strong> ${userName}</p>
                         <p><strong>メール:</strong> ${userEmail}</p>
                     </div>
-
                     <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                        <h3 style="margin-top: 0; color: #444;">予約内容</h3>
                         <p><strong>イベント:</strong> ${event.title}</p>
                         <p><strong>日時:</strong> ${dateStr} ${timeStr}</p>
-                        <p><strong>場所:</strong> ${event.location || '現地'}</p>
                     </div>
-                    <p style="font-size: 0.8rem; color: #666;">管理画面から詳細を確認してください。</p>
                 </div>
             `
         });
-        console.log(`[Email] Admin notification sent to ${adminEmail}`);
     } catch (error) {
-        console.error('[Email] Failed to send admin notification:', error);
+        console.error('[Email] Failed:', error);
     }
 }
 
 export async function sendAdminNewUserNotification(userEmail: string, userName: string) {
-    const adminEmail = await getAdminEmail();
-    
-    // Development Fallback
-    if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: NEW USER NOTIFICATION ---');
-        console.log(`To: ${adminEmail}`);
-        console.log(`New User: ${userName} (${userEmail})`);
-        console.log('-----------------------------------------------------');
-        return;
-    }
+    const { senderName, senderEmail, adminEmail } = await getMailSettings();
+    if (!process.env.RESEND_API_KEY) return;
 
     try {
         await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            from: `${senderName} <${senderEmail}>`,
             to: adminEmail,
             subject: '【ユーザー登録通知】新規ユーザーが登録されました',
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h2 style="color: #333;">新規ユーザー登録のお知らせ</h2>
-                    <p>新しいユーザーがアカウントを作成しました。</p>
-                    
                     <div style="background: #eef; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                        <h3 style="margin-top: 0; color: #444;">ユーザー情報</h3>
                         <p><strong>名前:</strong> ${userName}</p>
                         <p><strong>メール:</strong> ${userEmail}</p>
                     </div>
-
-                    <p style="font-size: 0.8rem; color: #666;">管理画面のユーザー一覧で詳細を確認できます。</p>
                 </div>
             `
         });
-        console.log(`[Email] Admin new user notification sent to ${adminEmail}`);
     } catch (error) {
-        console.error('[Email] Failed to send admin new user notification:', error);
+        console.error('[Email] Failed:', error);
     }
 }
 
-// Verification Email
 export async function sendVerificationEmail(email: string, token: string) {
+    const { senderName, senderEmail } = await getMailSettings();
     const confirmLink = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
 
-    if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: VERIFICATION ---');
-        console.log(`To: ${email}`);
-        console.log(`Link: ${confirmLink}`);
-        console.log('--------------------------------------------');
-        return;
-    }
+    if (!process.env.RESEND_API_KEY) return;
 
-    // Send (let errors throw to caller)
-    const { error } = await resend.emails.send({
-        from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
-        to: email,
-        subject: '【重要】メールアドレスの確認をお願いします',
-        html: `
+    try {
+        await resend.emails.send({
+            from: `${senderName} <${senderEmail}>`,
+            to: email,
+            subject: '【重要】メールアドレスの確認をお願いします',
+            html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
                     <h1>メールアドレスの確認</h1>
-                    <p>ドローンスクール予約サイトへのご登録ありがとうございます。</p>
-                    <p>以下のリンクをクリックして、メールアドレスの確認を完了してください。</p>
-                    <p>
-                        <a href="${confirmLink}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 5px;">
-                            メールアドレスを確認する
-                        </a>
-                    </p>
-                    <p style="font-size: 0.9rem; color: #666;">
-                        リンクの有効期限は24時間です。<br>
-                        もしこのメールに心当たりがない場合は、無視してください。
-                    </p>
+                    <p>ご登録ありがとうございます。以下のリンクをクリックして完了してください。</p>
+                    <p><a href="${confirmLink}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: white; text-decoration: none; border-radius: 5px;">確認する</a></p>
                 </div>
             `
-    });
-
-    if (error) {
-        console.error('[Email] Resend API Error:', error);
-        throw new Error(error.message);
+        });
+    } catch (error) {
+        console.error('[Email] Failed:', error);
     }
-
-    console.log(`[Email] Verification sent to ${email}`);
 }
 
-// Admin Cancellation Notification
 export async function sendAdminCancellationNotification(event: any, user: any) {
-    const adminEmail = await getAdminEmail();
-    
-    if (!process.env.RESEND_API_KEY) {
-        console.log('--- [DEV] EMAIL SIMULATION: ADMIN CANCELLATION ---');
-        console.log(`To: ${adminEmail}`);
-        console.log(`Canceled By: ${user.email}`);
-        console.log(`Event: ${event.title}`);
-        console.log('--------------------------------------------------');
-        return;
-    }
+    const { senderName, senderEmail, adminEmail } = await getMailSettings();
+    if (!process.env.RESEND_API_KEY) return;
 
     try {
         const dateStr = formatInJST(event.startTime, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
-
         await resend.emails.send({
-            from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
+            from: `${senderName} <${senderEmail}>`,
             to: adminEmail,
             subject: '【キャンセル発生】予約がキャンセルされました',
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #d32f2f;">予約キャンセルのお知らせ</h2>
-                    <p>以下の予約がキャンセルされました。</p>
-                    
                     <div style="background: #fff5f5; padding: 15px; border-radius: 5px; border: 1px solid #ffcdd2;">
                         <p><strong>ユーザー:</strong> ${user.profile?.fullName || 'No Name'} (${user.email})</p>
                         <p><strong>イベント:</strong> ${event.title}</p>
                         <p><strong>日時:</strong> ${dateStr}</p>
                     </div>
-
-                    <p style="font-size: 0.8rem; color: #666;">管理画面で最新の予約状況を確認してください。</p>
                 </div>
             `
         });
-        console.log(`[Email] Admin cancellation notice sent to ${adminEmail}`);
     } catch (error) {
-        console.error('[Email] Failed to send admin cancellation notice:', error);
+        console.error('[Email] Failed:', error);
     }
 }
-

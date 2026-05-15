@@ -95,23 +95,31 @@ export function AdminCalendar() {
                                 {format(day, 'd')}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                {dayEvents.map(event => (
-                                    <div key={event.id} style={{
-                                        fontSize: '0.75rem',
-                                        padding: '2px 4px',
-                                        borderRadius: '2px',
-                                        background: ((event.bookings?.length || 0) >= event.maxAttendees)
-                                            ? '#d4d4d8'
-                                            : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'rgb(127, 127, 135)'),
-                                        color: ((event.bookings?.length || 0) >= event.maxAttendees) ? 'var(--text-primary)' : 'white',
-                                        border: 'none',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}>
-                                        {format(new Date(event.startTime), 'HH:mm')} {event.title} ({event._count.bookings}/{event.maxAttendees})
-                                    </div>
-                                ))}
+                                {dayEvents.map(event => {
+                                    const bookingCount = event._count?.bookings || event.bookings?.length || 0;
+                                    const isFull = bookingCount >= event.maxAttendees;
+                                    const hasBookings = bookingCount > 0;
+
+                                    return (
+                                        <div key={event.id} style={{
+                                            fontSize: '0.75rem',
+                                            padding: '2px 4px',
+                                            borderRadius: '2px',
+                                            background: isFull
+                                                ? '#d4d4d8'
+                                                : (hasBookings
+                                                    ? '#fef3c7' // Pastel Yellow for slots with bookings
+                                                    : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'rgb(127, 127, 135)')),
+                                            color: (isFull || hasBookings) ? '#92400e' : 'white',
+                                            border: hasBookings && !isFull ? '1px solid #f59e0b' : 'none',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {format(new Date(event.startTime), 'HH:mm')} {event.title} ({bookingCount}/{event.maxAttendees})
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     );

@@ -155,24 +155,30 @@ export function Calendar() {
                                 {format(day, 'd')}
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                {dayEvents.map(event => (
-                                    <div key={event.id} style={{
-                                        fontSize: '0.75rem',
-                                        padding: '2px 4px',
-                                        borderRadius: '2px',
-                                        background: event.isBooked
-                                            ? '#f97316'
-                                            : ((event._count?.bookings || 0) >= event.maxAttendees
-                                                ? '#d4d4d8'
-                                                : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'rgb(127, 127, 135)')),
-                                        color: event.isBooked || event.type === 'SEMINAR' || ((event._count?.bookings || 0) < event.maxAttendees && event.type === 'FREE_PRACTICE') ? 'white' : 'var(--text-primary)',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}>
-                                        {format(new Date(event.startTime), 'HH:mm')} {event.title}
-                                    </div>
-                                ))}
+                                {dayEvents.map(event => {
+                                    const isFull = (event._count?.bookings || 0) >= event.maxAttendees;
+                                    return (
+                                        <div key={event.id} style={{
+                                            fontSize: '0.75rem',
+                                            padding: '2px 4px',
+                                            borderRadius: '2px',
+                                            background: event.isBooked
+                                                ? '#ffedd5' // Pastel Orange for my booking
+                                                : (isFull
+                                                    ? '#d4d4d8'
+                                                    : (event.type === 'SEMINAR' ? 'var(--accent-primary)' : 'rgb(127, 127, 135)')),
+                                            color: event.isBooked
+                                                ? '#9a3412' // Darker orange for text
+                                                : (isFull || event.type === 'SEMINAR' || (!isFull && event.type === 'FREE_PRACTICE')) ? 'white' : 'var(--text-primary)',
+                                            border: event.isBooked ? '1px solid #f97316' : 'none',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {format(new Date(event.startTime), 'HH:mm')} {event.title}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     );

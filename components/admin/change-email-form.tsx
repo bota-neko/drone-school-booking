@@ -35,23 +35,27 @@ export function ChangeEmailForm() {
                 変更後は新しいアドレスでログインしてください。
             </p>
             <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="新しいメールアドレス"
-                    required
-                    className="input"
-                    style={{ flex: '1 1 300px' }}
-                />
-                <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={isLoading}
-                    style={{ width: 'auto' }}
-                >
-                    {isLoading ? '更新中...' : '変更する'}
-                </button>
+                <div style={{ flex: '1 1 300px' }}>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="新しいメールアドレス"
+                        required
+                        className="input"
+                        style={{ width: '100%' }}
+                    />
+                </div>
+                <div style={{ width: 'auto', minWidth: '150px' }}>
+                    <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={isLoading}
+                        style={{ width: '100%' }}
+                    >
+                        {isLoading ? '更新中...' : '変更する'}
+                    </button>
+                </div>
             </form>
         </div>
     );

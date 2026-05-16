@@ -76,4 +76,5 @@ model SystemConfig {
   logoUrl         String?
   updatedAt       DateTime @updatedAt
   siteDescription String   @default("Drone School Reservation System")
+  gaTrackingId    String?
 }

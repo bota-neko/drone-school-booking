@@ -7,6 +7,7 @@ type Config = {
     siteTitle: string;
     siteDescription?: string;
     logoUrl: string | null;
+    gaTrackingId?: string | null;
 };
 
 export function SettingsForm({ initialConfig }: { initialConfig: Config }) {
@@ -41,6 +42,20 @@ export function SettingsForm({ initialConfig }: { initialConfig: Config }) {
                 />
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
                     検索結果などに表示されるサイトの説明文です。
+                </p>
+            </div>
+            
+            <div className="form-group">
+                <label htmlFor="gaTrackingId" className="label">Google Analytics 測定ID</label>
+                <input
+                    name="gaTrackingId"
+                    id="gaTrackingId"
+                    className="input"
+                    defaultValue={initialConfig.gaTrackingId || ''}
+                    placeholder="G-XXXXXXXXXX"
+                />
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                    Google Analytics (GA4) の測定ID（G-で始まるもの）を入力してください。
                 </p>
             </div>
 

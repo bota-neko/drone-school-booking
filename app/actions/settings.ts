@@ -8,8 +8,7 @@ import { put } from '@vercel/blob';
 const configSchema = z.object({
     siteTitle: z.string().min(1, 'タイトルは必須です'),
     siteDescription: z.string().optional(),
-    // logoUrl is typically not passed from valid form submission if using file, 
-    // but handled separately.
+    gaTrackingId: z.string().optional(),
 });
 
 export type ConfigState = {
@@ -48,6 +47,7 @@ export async function getSystemConfig() {
             siteTitle: 'SORA-MUSUBI',
             siteDescription: 'Drone School Reservation System',
             logoUrl: null,
+            gaTrackingId: null,
             updatedAt: new Date(),
         };
     }
@@ -57,6 +57,7 @@ export async function getSystemConfig() {
 export async function updateSystemConfig(prevState: ConfigState, formData: FormData): Promise<ConfigState> {
     const siteTitle = formData.get('siteTitle') as string;
     const siteDescription = formData.get('siteDescription') as string;
+    const gaTrackingId = formData.get('gaTrackingId') as string;
     const logoFile = formData.get('logoFile') as File | null;
 
     if (!siteTitle) {
@@ -89,12 +90,14 @@ export async function updateSystemConfig(prevState: ConfigState, formData: FormD
             update: {
                 siteTitle,
                 siteDescription,
+                gaTrackingId,
                 ...(logoUrlToUpdate && { logoUrl: logoUrlToUpdate })
             },
             create: {
                 id: 'default',
                 siteTitle,
                 siteDescription,
+                gaTrackingId,
                 logoUrl: logoUrlToUpdate
             },
         });

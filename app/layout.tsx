@@ -3,6 +3,7 @@ import { getSystemConfig } from "@/app/actions/settings";
 import { Outfit } from "next/font/google"; // Removed Noto Sans JP
 import "../styles/globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -18,14 +19,17 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const config = await getSystemConfig();
+
   return (
     <html lang="ja">
       <body className={`${outfit.variable}`} style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        {config.gaTrackingId && <GoogleAnalytics gaId={config.gaTrackingId} />}
         <SiteHeader />
         <main style={{ flex: 1 }}>
           {children}
